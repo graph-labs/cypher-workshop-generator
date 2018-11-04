@@ -34,12 +34,12 @@ public class CommandRegistry implements Command {
 
     @Override
     public boolean matches(String query) {
-        return normalize(query).equals(Command.PREFIX + "commands");
+        return normalize(query).equals(Command.PREFIX + "help");
     }
 
     @Override
     public String help() {
-        return format("{0}commands - displays this list of commands", Command.PREFIX);
+        return format("{0}help - displays the list of available commands", Command.PREFIX);
     }
 
     @Override
