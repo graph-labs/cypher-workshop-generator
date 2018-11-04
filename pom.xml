@@ -25,12 +25,12 @@
             <dependency>
                 <groupId>com.beust</groupId>
                 <artifactId>jcommander</artifactId>
-                <version>1.64</version>
+                <version>1.72</version>
             </dependency>
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>4.0.0</version>
+                <version>4.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.neo4j</groupId>
@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>org.neo4j.driver</groupId>
                 <artifactId>neo4j-java-driver</artifactId>
-                <version>1.2.0</version>
+                <version>1.7.0</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
@@ -51,7 +51,7 @@
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
-                <version>3.6.2</version>
+                <version>3.11.1</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
