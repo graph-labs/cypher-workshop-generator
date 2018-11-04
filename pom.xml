@@ -7,9 +7,12 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <name>Cypher Workshop Parent POM</name>
+
     <modules>
-        <module>repl</module>
-        <module>generator</module>
+        <module>cypher-repl</module>
+        <module>workshop-exporter-plugin</module>
+        <module>workshop-archetype</module>
     </modules>
 
     <properties>

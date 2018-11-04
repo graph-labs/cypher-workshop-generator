@@ -1,0 +1,10 @@
+[
+  {
+    "instructions": "What's the answer to life, the universe and everything?",
+    "solutionQuery": "RETURN 42;"
+  },
+  {
+    "instructions": "What's the double of the answer to life, the universe and everything?",
+    "solutionQuery": "RETURN 84;"
+  }
+]

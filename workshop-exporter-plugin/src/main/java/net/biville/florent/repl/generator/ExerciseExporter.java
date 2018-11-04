@@ -66,14 +66,12 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
             String query = convertToQuery(tx, exercise);
             tx.failure();// always roll back, so nothing is persisted in remote database
             return query;
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
         } catch (ClientException e) {
             throw new RuntimeException(String.format("This exercise fails: %s%s", System.lineSeparator(), exercise.toString()), e);
         }
     }
 
-    private String convertToQuery(Transaction transaction, JsonExercise exercise) throws IOException {
+    private String convertToQuery(Transaction transaction, JsonExercise exercise) {
         if (exercise.requiresWrite()) {
             transaction.run(exercise.getWriteQuery());
             byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
