@@ -21,13 +21,14 @@ public class CypherStatementValidatorTest {
 
     @Test
     public void diagnoses_invalid_statement() {
-        assertThat(validator.validate("toto;"))
+        Collection<CypherError> errors = validator.validate("toto;");
+        
+        assertThat(errors)
                 .hasSize(1)
-                .extracting(CypherError::getLine, CypherError::getCharPositionInLine, CypherError::getMessage)
-                .containsOnly(tuple(
-                        1,
-                        0,
-                        "mismatched input 'toto' expecting {<EOF>, CYPHER, EXPLAIN, PROFILE, USING, CREATE, DROP, LOAD, WITH, OPTIONAL, MATCH, UNWIND, MERGE, SET, DETACH, DELETE, REMOVE, FOREACH, RETURN, START, CALL, SP}"));
+                .extracting(CypherError::getLine, CypherError::getCharPositionInLine)
+                .containsOnly(tuple(1, 0));
+        String errorMessage = errors.iterator().next().getMessage();
+        assertThat(errorMessage).startsWith("mismatched input 'toto'");
     }
 
     @Test

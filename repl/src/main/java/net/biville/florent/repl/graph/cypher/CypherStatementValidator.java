@@ -20,7 +20,7 @@ public class CypherStatementValidator {
         listenToLexerErrors(listener, lexer);
         CypherParser parser = new CypherParser(new CommonTokenStream(lexer));
         listenToParserErrors(listener, parser);
-        parser.cypher();
+        parser.oC_Cypher();
         return listener.getErrors();
     }
 
