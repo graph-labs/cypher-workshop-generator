@@ -51,11 +51,10 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
     }
 
     private Collection<String> cypherQueries(Driver driver, Collection<JsonExercise> jsonExercises) {
-        Collection<String> queries = jsonExercises.stream()
+        Collection<String> result = jsonExercises.stream()
                 .map(exercise -> tryConvertQuery(driver, exercise))
                 .collect(Collectors.toList());
 
-        Collection<String> result = new ArrayList<>(queries);
         if (jsonExercises.size() > 1) {
             result.add(linkQuery());
         }
@@ -107,7 +106,7 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
     }
 
 
-    private byte[] serialize(StatementResult result) throws IOException {
+    private byte[] serialize(StatementResult result) {
         List<Map<String, Object>> rows = makeSerializable(result.list(Record::asMap));
         try (Output output = new Output(new ByteArrayOutputStream())) {
             kryo.writeObject(output, rows);
@@ -119,7 +118,7 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
         List<Map<String, Object>> result = new ArrayList<>();
         for (Map<String, Object> row : rows) {
             Map<String, Object> entries = new HashMap<>();
-            row.entrySet().forEach(e -> entries.put(e.getKey(), e.getValue()));
+            row.forEach(entries::put);
             result.add(entries);
         }
         return result;
