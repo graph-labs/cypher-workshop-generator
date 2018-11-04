@@ -31,7 +31,9 @@ public class ExerciseValidator {
         if (actualSize != expectedSize) {
             return new ExerciseValidation(false, "Expected %d returned rows, got %d", expectedSize, actualSize);
         }
-        return new ExerciseValidation(ResultOperations.difference(actualResult, expectedResult));
+        ResultDifference difference = ResultOperations.difference(actualResult, expectedResult);
+        boolean singleColumnResult = isSingleColumn(expectedResult);
+        return new ExerciseValidation(difference, difference.getReport(singleColumnResult));
     }
 
     @SuppressWarnings("unchecked")
@@ -45,5 +47,11 @@ public class ExerciseValidator {
             logger.error(e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    private boolean isSingleColumn(List<Map<String, Object>> expectedResult) {
+        return expectedResult.stream()
+                .filter(row -> row.size() != 1)
+                .findAny().isEmpty();
     }
 }

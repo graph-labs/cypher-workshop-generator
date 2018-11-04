@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class ResultRowDifference {
 
-    private final List<Map.Entry> expectedNotFound;
-    private final List<Map.Entry> unexpectedFound;
+    private final List<Map.Entry<String, Object>> expectedNotFound;
+    private final List<Map.Entry<String, Object>> unexpectedFound;
 
     public ResultRowDifference() {
         this(Collections.emptyList(), Collections.emptyList());
@@ -17,7 +17,7 @@ public class ResultRowDifference {
         return new ResultRowDifference();
     }
 
-    public ResultRowDifference(List<Map.Entry> expectedNotFound, List<Map.Entry> unexpectedFound) {
+    public ResultRowDifference(List<Map.Entry<String, Object>> expectedNotFound, List<Map.Entry<String, Object>> unexpectedFound) {
         this.expectedNotFound = expectedNotFound;
         this.unexpectedFound = unexpectedFound;
     }
@@ -26,11 +26,11 @@ public class ResultRowDifference {
         return expectedNotFound.isEmpty() && unexpectedFound.isEmpty();
     }
 
-    public List<Map.Entry> getExpectedNotFound() {
+    public List<Map.Entry<String, Object>> getExpectedNotFound() {
         return expectedNotFound;
     }
 
-    public List<Map.Entry> getUnexpectedFound() {
+    public List<Map.Entry<String, Object>> getUnexpectedFound() {
         return unexpectedFound;
     }
 }
