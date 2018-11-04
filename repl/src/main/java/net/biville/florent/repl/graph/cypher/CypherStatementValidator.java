@@ -3,6 +3,7 @@ package net.biville.florent.repl.graph.cypher;
 import net.biville.florent.repl.CypherLexer;
 import net.biville.florent.repl.CypherParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 
@@ -16,7 +17,7 @@ public class CypherStatementValidator {
 
     private Collection<CypherError> parse(String statement) {
         CypherErrorStatefulListener listener = new CypherErrorStatefulListener();
-        CypherLexer lexer = new CypherLexer(new ANTLRInputStream(statement));
+        CypherLexer lexer = new CypherLexer(CharStreams.fromString(statement));
         listenToLexerErrors(listener, lexer);
         CypherParser parser = new CypherParser(new CommonTokenStream(lexer));
         listenToParserErrors(listener, parser);

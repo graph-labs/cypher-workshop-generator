@@ -2,6 +2,7 @@ package net.biville.florent.repl.console.commands;
 
 import org.reflections.Reflections;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
 public class CommandScanner {
@@ -30,8 +31,8 @@ public class CommandScanner {
 
     private <T> T instantiate(Class<? extends T> type) {
         try {
-            return type.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return type.getConstructor().newInstance();
+        } catch (InvocationTargetException | NoSuchMethodException | InstantiationException | IllegalAccessException e) {
             throw new RuntimeException("Could not instantiate command", e);
         }
     }

@@ -11,7 +11,7 @@
     <artifactId>cypher-repl</artifactId>
     <packaging>jar</packaging>
 
-    <name>Cypher REPL</name>
+    <name>Cypher Workshop REPL</name>
 
     <properties>
         <antlr.version>4.7.1</antlr.version>
