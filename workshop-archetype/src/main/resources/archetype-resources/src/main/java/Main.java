@@ -8,6 +8,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import net.biville.florent.repl.Neo4jRepl;
 import net.biville.florent.repl.graph.ReplConfiguration;
+import java.util.logging.LogManager;
 
 public class Main {
 
@@ -26,6 +27,7 @@ public class Main {
     private boolean help;
 
     public static void main(String[] args) {
+        LogManager.getLogManager().reset();
         Main main = new Main();
         JCommander cli = parseCommandLineArguments(args, main);
         if (main.help) {

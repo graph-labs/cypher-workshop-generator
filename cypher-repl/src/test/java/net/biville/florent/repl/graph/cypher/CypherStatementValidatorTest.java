@@ -3,11 +3,16 @@ package net.biville.florent.repl.graph.cypher;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.logging.LogManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 
 public class CypherStatementValidatorTest {
+
+    static {
+        LogManager.getLogManager().reset();
+    }
 
     private CypherStatementValidator validator = new CypherStatementValidator();
 

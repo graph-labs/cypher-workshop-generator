@@ -10,10 +10,15 @@ import org.neo4j.harness.junit.Neo4jRule;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CypherQueryExecutorTest {
+
+    static {
+        LogManager.getLogManager().reset();
+    }
 
     @Rule
     public Neo4jRule graphDatabase = new Neo4jRule();

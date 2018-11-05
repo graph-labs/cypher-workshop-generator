@@ -9,6 +9,7 @@ import org.neo4j.driver.v1.AuthTokens;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.logging.LogManager;
 
 @Mojo(name = "generate-cypher-file", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true, requiresProject = false)
 public class Main extends AbstractMojo {
@@ -30,6 +31,7 @@ public class Main extends AbstractMojo {
 
     @Override
     public void execute() {
+        LogManager.getLogManager().reset();
         System.out.println("A word of warning:");
         System.out.println("Please make sure the configured database contains **only** the required data for the exercises.");
         System.out.println("In the end, the database content relied upon by the generator must be exactly the same as the one in user databases.");

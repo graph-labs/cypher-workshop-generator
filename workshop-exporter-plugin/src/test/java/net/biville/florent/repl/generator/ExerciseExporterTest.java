@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.logging.LogManager;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.lines;
@@ -34,6 +35,10 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExerciseExporterTest {
+
+    static {
+        LogManager.getLogManager().reset();
+    }
 
     private static final Kryo KRYO = new Kryo();
 
