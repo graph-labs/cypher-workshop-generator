@@ -12,6 +12,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 import org.jline.utils.AttributedStyle;
 
+import static net.biville.florent.repl.console.commands.CommandRegistry.HELP_COMMAND;
 import static org.jline.utils.AttributedStyle.GREEN;
 import static org.jline.utils.AttributedStyle.YELLOW;
 
@@ -65,8 +66,7 @@ public class Console {
         session.init(this.getClass().getResourceAsStream("/exercises/dump.cypher"));
         logger.log("... done!", AttributedStyle.DEFAULT.italic());
         logger.log("");
-        logger.log("Welcome to Devoxx France 2017 Hands on Neo4j!");
-        logger.log("Available commands can be displayed with ':commands'");
+        logger.log("Welcome! Available commands can be displayed with '%s'", HELP_COMMAND);
         logger.log("");
         logger.log("Please make sure your Cypher statements end with a semicolon.", warningStyle);
         logger.log("Every exercise is independent, no changes are persisted against your database.", warningStyle);

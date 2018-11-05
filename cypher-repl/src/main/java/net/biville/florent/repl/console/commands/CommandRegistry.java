@@ -14,6 +14,8 @@ import static org.jline.utils.AttributedStyle.WHITE;
 
 public class CommandRegistry implements Command {
 
+    public static final String HELP_COMMAND = Command.PREFIX + "help";
+
     private final ConsoleLogger logger;
     private final LinkedHashSet<Command> commands;
 
@@ -34,12 +36,12 @@ public class CommandRegistry implements Command {
 
     @Override
     public boolean matches(String query) {
-        return normalize(query).equals(Command.PREFIX + "help");
+        return normalize(query).equals(HELP_COMMAND);
     }
 
     @Override
     public String help() {
-        return format("{0}help - displays the list of available commands", Command.PREFIX);
+        return format("{0} - displays the list of available commands", HELP_COMMAND);
     }
 
     @Override
