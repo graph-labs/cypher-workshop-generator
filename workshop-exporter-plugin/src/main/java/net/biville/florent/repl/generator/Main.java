@@ -22,7 +22,7 @@ public class Main extends AbstractMojo {
     @Parameter(property = "bolt-uri", defaultValue = "bolt://localhost:7687")
     private String boltUri;
 
-    @Parameter(property = "username", required = true, defaultValue = "neo4j")
+    @Parameter(property = "username", defaultValue = "neo4j")
     private String username;
 
     @Parameter(property = "password", required = true)
