@@ -75,7 +75,7 @@ public class Console {
         logger.log("Ask for help when needed and have fun!", AttributedStyle.BOLD.foreground(AttributedStyle.CYAN));
         while (true) {
             try {
-                String statement = lineReader.readLine("(:Devoxx)-[:`<3`]-(:Cypher)> ");
+                String statement = lineReader.readLine("(:Everyone)-[:`<3`]-(:Cypher)> ");
                 commandRegistry
                         .findFirst(statement)
                         .orElse(defaultCypherCommand)
