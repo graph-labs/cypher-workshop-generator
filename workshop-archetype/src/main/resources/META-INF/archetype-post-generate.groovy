@@ -33,5 +33,5 @@ file.write """
         -Dusername="neo4j" \
         -Dpassword="\$password" \
         -Dexercise-input=src/main/resources/exercises/exercises.json \
-        -Dcypher-output=src/main/resources/exercises/dump.cypher
+        -Dcypher-output=src/main/resources/exercises/dump.cypher &> /dev/null
 """.stripLeading()
