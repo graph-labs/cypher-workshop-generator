@@ -16,7 +16,7 @@ public class Main {
     private String boltUri = "bolt://localhost:7687";
 
     @Parameter(names = {"-u",
-            "--username"}, description = "Neo4j User name", required = true)
+            "--username"}, description = "Neo4j User name")
     private String username = "neo4j";
 
     @Parameter(names = {"-p",
