@@ -4,12 +4,10 @@
 
  1. make sure the credentials are correct in `generate-importable-exercises.sh` (piece of advice: use git-crypt or read password from env)
  1. run `generate-importable-exercises.sh`
- 1. build the project `mvn package`
- 1. run the REPL by decompressing the archive and running the packaged script, e.g.
+ 1. run `mvn package`
+ 1. run `./run.sh` with the relevant parameters, e.g.
 ```shell
- $ cd target
- $ unzip cypher-workshop.zip
- $ ./cypher-workshop/bin/cypher-workshop -p
+ $ ./run.sh -p
 [[[ interactively prompts for your Neo4j password ]]]
 ```
 

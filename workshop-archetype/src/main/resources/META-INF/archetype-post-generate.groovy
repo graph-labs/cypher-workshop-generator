@@ -11,18 +11,23 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 
 
-def path = Paths.get("${request.getOutputDirectory()}/${request.getArtifactId()}/generate-importable-exercises.sh")
-def permissions = new HashSet<PosixFilePermission>()
-permissions.add(OWNER_READ)
-permissions.add(OWNER_WRITE)
-permissions.add(OWNER_EXECUTE)
-permissions.add(GROUP_READ)
-permissions.add(GROUP_WRITE)
-permissions.add(GROUP_EXECUTE)
-Files.createFile(path, asFileAttribute(permissions))
+def generateExecutable = { String filepath, String contents ->
+    def path = Paths.get(filepath)
+    def permissions = new HashSet<PosixFilePermission>()
+    permissions.add(OWNER_READ)
+    permissions.add(OWNER_WRITE)
+    permissions.add(OWNER_EXECUTE)
+    permissions.add(GROUP_READ)
+    permissions.add(GROUP_WRITE)
+    permissions.add(GROUP_EXECUTE)
+    Files.createFile(path, asFileAttribute(permissions))
+    path.toFile().write contents
+}
 
-def file = path.toFile()
-file.write """
+
+generateExecutable(
+        "${request.getOutputDirectory()}/${request.getArtifactId()}/generate-importable-exercises.sh",
+        """
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -34,4 +39,16 @@ file.write """
         -Dpassword="\$password" \
         -Dexercise-input=src/main/resources/exercises/exercises.json \
         -Dcypher-output=src/main/resources/exercises/dump.cypher &> /dev/null
-""".stripLeading()
+""".stripLeading())
+
+generateExecutable(
+        "${request.getOutputDirectory()}/${request.getArtifactId()}/run.sh",
+        """
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    cd target
+    unzip cypher-workshop.zip
+    ./cypher-workshop/bin/cypher-workshop "\$@"
+""".stripLeading())
+
