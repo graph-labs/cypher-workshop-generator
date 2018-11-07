@@ -25,6 +25,7 @@ public class CommandRegistry implements Command {
         this.commands.add(new ShowCommand(logger));
         this.commands.add(new ExitCommand(logger));
         this.commands.add(new ResetProgressionCommand(logger));
+        this.commands.add(new CypherRefcard(logger));
         this.commands.add(this);
     }
 
