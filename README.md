@@ -24,4 +24,4 @@
  # interactively fill in the required details
 ```
 
-Once the workshop base is generated, just check out the README file.
+Once the workshop base is generated, just check out its `README` file.
