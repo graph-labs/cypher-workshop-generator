@@ -26,17 +26,21 @@ public class ExitCommand implements Command {
 
     @Override
     public void accept(TraineeSession session, String s) {
-        logger.log(
-                "     .-\"\"\"\"\"\"-.\n" +
-                        "   .'          '.\n" +
-                        "  /   O      O   \\\n" +
-                        " :           `    :\n" +
-                        " |                |\n" +
-                        " :    .------.    :\n" +
-                        "  \\  '        '  /\n" +
-                        "   '.          .'\n" +
-                        "     '-......-'\n"
-                        + "Sad to see you go", AttributedStyle.DEFAULT.blink().italic().foreground(MAGENTA));
+        if (session.isCompleted()) {
+            logger.success("Byyye! Keep rocking!");
+        } else {
+            logger.information(
+                    "     .-\"\"\"\"\"\"-.\n" +
+                            "   .'          '.\n" +
+                            "  /   O      O   \\\n" +
+                            " :           `    :\n" +
+                            " |                |\n" +
+                            " :    .------.    :\n" +
+                            "  \\  '        '  /\n" +
+                            "   '.          .'\n" +
+                            "     '-......-'\n"
+                            + "Sad to see you go");
+        }
         System.exit(0);
     }
 }

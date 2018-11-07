@@ -6,6 +6,13 @@ import org.jline.utils.AttributedStyle;
 
 import java.io.PrintStream;
 
+import static org.jline.utils.AttributedStyle.BLUE;
+import static org.jline.utils.AttributedStyle.CYAN;
+import static org.jline.utils.AttributedStyle.DEFAULT;
+import static org.jline.utils.AttributedStyle.GREEN;
+import static org.jline.utils.AttributedStyle.RED;
+import static org.jline.utils.AttributedStyle.YELLOW;
+
 public class ConsoleLogger {
 
     private final Terminal terminal;
@@ -14,26 +21,32 @@ public class ConsoleLogger {
         this.terminal = terminal;
     }
 
-    public void log(String string, Object... args) {
-        AttributedStyle style = AttributedStyle.BOLD;
-        log(string, style, args);
+    public void information(String string, Object... args) {
+        log(string, DEFAULT.foreground(CYAN), System.out, args);
     }
 
-    public void log(String string, AttributedStyle style, Object... args) {
+    public void system(String string, Object... args) {
+        log(string, DEFAULT.foreground(YELLOW), System.out, args);
+    }
+
+    public void success(String string, Object... args) {
+        log("✔ " + string, DEFAULT.foreground(GREEN), System.out, args);
+    }
+
+    public void failure(String string, Object... args) {
+        log("✗ " + string, DEFAULT.foreground(RED), System.err, args);
+    }
+
+    public void error(String string, Object... args) {
+        log(string, DEFAULT.foreground(RED), System.err, args);
+    }
+
+    private void log(String string, AttributedStyle style, PrintStream output, Object... args) {
         if (args.length == 0) {
             log(System.out, style, string);
             return;
         }
-        log(System.out, style, String.format(string, args));
-    }
-
-    public void error(String string, Object... args) {
-        AttributedStyle style = AttributedStyle.BOLD.foreground(AttributedStyle.RED);
-        if (args.length == 0) {
-            log(System.err, style, string);
-            return;
-        }
-        log(System.err, style, String.format(string, args));
+        log(output, style, String.format(string, args));
     }
 
     private void log(PrintStream out, AttributedStyle style, String log) {

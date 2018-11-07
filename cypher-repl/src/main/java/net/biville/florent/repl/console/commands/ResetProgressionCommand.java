@@ -28,7 +28,7 @@ public class ResetProgressionCommand implements Command {
     @Override
     public void accept(TraineeSession session, String ignored) {
         session.reset();
-        logger.log("Progression reset! Current exercise is now:");
+        logger.information("Progression reset! Current exercise is now:");
         session.getCurrentExercise().accept(logger);
     }
 }

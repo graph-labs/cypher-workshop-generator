@@ -57,15 +57,15 @@ public class CypherSessionFallbackCommand implements Command {
 
         ExerciseValidation validation = validate(session, statement);
         if (!validation.isSuccessful()) {
-            logger.error(validation.getReport());
+            logger.failure(validation.getReport());
             return;
         }
         if (session.isCompleted()) {
-            logger.log("Congrats, you're done!!!", AttributedStyle.BOLD.background(AttributedStyle.GREEN));
+            logger.success("Congrats, you're done!!!");
             return;
         }
-        logger.log(validation.getReport());
-        logger.log("Now moving on to next exercise! See instructions below...");
+        logger.success(validation.getReport());
+        logger.information("Now moving on to next exercise! See instructions below...");
         session.getCurrentExercise().accept(logger);
     }
 

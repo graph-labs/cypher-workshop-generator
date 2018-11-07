@@ -10,6 +10,7 @@ import net.biville.florent.repl.logging.ConsoleLogger;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
+import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
 import static net.biville.florent.repl.console.commands.CommandRegistry.HELP_COMMAND;
@@ -44,47 +45,58 @@ public class Console {
     }
 
     public void start() {
-        logger.log("\n" +
-                "     \n" +
-                "          ╓╖╓\n" +
-                "        ╓▓▓▓▓▓M▌ ╟╜▀▓▌╗╥                                                        █\n" +
-                "         ▓▓▓▓▓¼▓▓▓╗╬╢╬▓▓▓▌╗,        ,,         ,;          ,;;\n" +
-                "       ╓▓▓╩╬▌╬▓▓▓▓╟▓▓▓▓▓▓▓▓▓▌   █▄▀╙└╙▀█▄   ▄▀▀└└\"▀█    ▄█▀┘└└▀▀▄      █▀       █\n" +
-                "       ▓▓▌w╬▓▓▓▓▓╡▓▓▓▓▓▓▓▓▓▓▓M  █▌      █  █▀       █  █▀       \"█    █▀        █\n" +
-                "      ▐▓▓▓,╟▓▓▓▓▓▓╟▓▓▓▓▓▓▓▓▓▓   █=      █  █▀▀▀▀▀▀▀▀▀  █         █⌐  █▀    ╓    █\n" +
-                "      ▐▓▓▓▄,▓▓▓▓▓▓▓╬╬▓▓▓▓▓▓▌⌐   █=      █  ╙█          ╙█       ▄▀  █▀     █=   █\n" +
-                "       ╟▓▓▓Ü ╟▓▌╬▓▓▓▓╬▌╝╬╬▓▌    ▀⌐      █   `▀Wæ▄æA▀     ▀▀æ▄æΦ▀└  ╝█≡≡≡≡≡≡█=   █\n" +
-                "        ╚▓▓▌▌╬▓▓▓▓▌▀▓╜½╖▓▓M                                                █=   █\n" +
-                "         `╚▓▓▓▓▓▓▓▓▓╟@╬▓▀                                                  ▀⌐╘≡▀└\n" +
-                "           ▓▓▓▓▓▓▓▓▓╜╙`\n" +
-                "            ╚▓▓▓▓▓▀\n" +
-                "\n", AttributedStyle.BOLD.foreground(GREEN));
+        logger.information(
+                "                                                                                     \n" +
+                        "                                                                                     \n" +
+                        "                                                                                     \n" +
+                        "                                                                              .hy    \n" +
+                        "                                                                               :-    \n" +
+                        "   `.   `....``          `.---..`           ``.-:-.``             `.           .`    \n" +
+                        "   +m:+yysssyhh+`      -syysoosyyo-       -oyysooosyyo-          :ms           my    \n" +
+                        "   +Nds.     `:dd.   `yd/.      .omo    .yd+.       .+dy`       -my`           Nh    \n" +
+                        "   +Ns         -Ns   hd`          :N+  `dd.           .dd`     -my`            Nh    \n" +
+                        "   +N:          Nh  -NhooooooooooooNd  /N/             /N/    -mh`             Nh    \n" +
+                        "   +N-          Nh  -Ns--------------  /N/             /N/   -mh`      .:`     Nh    \n" +
+                        "   +N-          Nh  `dd`               `dd`           `dd`  -mh`       oN:     Nh    \n" +
+                        "   +N-          Nh   .dh:`       `--    .hd/`       `/dh.  .mh`        oN:     Nh    \n" +
+                        "   +N-          Nh    `/yhs+//+oyys-     `:shyo+/+oyhs:`  .dNhsssssssssdN:     Nh    \n" +
+                        "   `.           ..       `-:///:.`          `.:///:.`     `............sN:     Nh    \n" +
+                        "                                                                       oN:     Ny    \n" +
+                        "                                                                       oN: -:/ym:    \n" +
+                        "                                                                       .:` :++/`     \n" +
+                        "                                                                                     \n" +
+                        "                                                                                     \n");
 
-        AttributedStyle warningStyle = AttributedStyle.BOLD.blink().foreground(YELLOW);
-        logger.log("");
-        logger.log("Initializing session now...", AttributedStyle.DEFAULT.italic());
+        logger.system("");
+        logger.system("Initializing session now...");
         session.init(this.getClass().getResourceAsStream("/exercises/dump.cypher"));
-        logger.log("... done!", AttributedStyle.DEFAULT.italic());
-        logger.log("");
-        logger.log("Welcome! Available commands can be displayed with '%s'", HELP_COMMAND);
-        logger.log("");
-        logger.log("Please make sure your Cypher statements end with a semicolon.", warningStyle);
-        logger.log("Every exercise is independent, no changes are persisted against your database.", warningStyle);
-        logger.log("Make sure to undo the insertions in the browser before using this REPL!", warningStyle);
-        logger.log("");
-        logger.log("Ask for help when needed and have fun!", AttributedStyle.BOLD.foreground(AttributedStyle.CYAN));
+        logger.system("... done!");
+        logger.system("");
+        logger.information("Welcome! Available commands can be displayed with '%s'", HELP_COMMAND);
+        logger.information("");
+        logger.information("Please make sure your Cypher statements end with a semicolon.");
+        logger.information("Every exercise is independent, no changes are persisted against your database.");
+        logger.information("Make sure to undo the insertions in the browser before using this REPL!");
+        logger.information("");
+        logger.information("Ask for help when needed and have fun!");
         while (true) {
             try {
-                String statement = lineReader.readLine("(:Everyone)-[:`<3`]-(:Cypher)> ");
+                String statement = lineReader.readLine(prompt());
                 commandRegistry
                         .findFirst(statement)
                         .orElse(defaultCypherCommand)
                         .accept(session, statement);
             } catch (UserInterruptException ignored) {
             } catch (EndOfFileException e) {
-                logger.log("Goodbye!");
+                logger.information("Goodbye!");
                 return;
             }
         }
+    }
+
+    private String prompt() {
+        return new AttributedStringBuilder()
+                .style(AttributedStyle.BOLD)
+                .append("(:Everyone)-[:`<3`]-(:Cypher)> ").toAnsi();
     }
 }

@@ -55,10 +55,10 @@ public class Exercise {
     }
 
     public void accept(ConsoleLogger logger) {
-        logger.log("");
-        logger.log(this.getCurrentPosition(), AttributedStyle.BOLD.italic().foreground(GREEN));
-        logger.log("");
-        logger.log(this.getInstructions(), AttributedStyle.BOLD.italic().foreground(BLUE));
+        logger.information("");
+        logger.information(this.getCurrentPosition());
+        logger.information("");
+        logger.information(this.getInstructions());
     }
 
     @Override

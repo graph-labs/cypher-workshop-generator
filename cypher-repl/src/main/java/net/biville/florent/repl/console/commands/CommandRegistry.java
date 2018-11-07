@@ -47,7 +47,7 @@ public class CommandRegistry implements Command {
     @Override
     public void accept(TraineeSession session, String ignored) {
         commands.forEach(command -> {
-            logger.log(command.help(), AttributedStyle.DEFAULT.background(WHITE).foreground(BLACK));
+            logger.information(command.help());
         });
     }
 }
