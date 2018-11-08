@@ -1,13 +1,9 @@
 package net.biville.florent.repl.exercises;
 
 import net.biville.florent.repl.logging.ConsoleLogger;
-import org.jline.utils.AttributedStyle;
 
 import java.util.Arrays;
 import java.util.Objects;
-
-import static org.jline.utils.AttributedStyle.BLUE;
-import static org.jline.utils.AttributedStyle.GREEN;
 
 public class Exercise {
 

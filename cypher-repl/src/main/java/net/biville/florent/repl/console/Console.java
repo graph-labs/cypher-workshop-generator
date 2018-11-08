@@ -13,9 +13,6 @@ import org.jline.reader.UserInterruptException;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
-import static org.jline.utils.AttributedStyle.GREEN;
-import static org.jline.utils.AttributedStyle.YELLOW;
-
 public class Console {
 
     private final ConsoleLogger logger;

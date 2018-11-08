@@ -6,7 +6,6 @@ import org.jline.utils.AttributedStyle;
 
 import java.io.PrintStream;
 
-import static org.jline.utils.AttributedStyle.BLUE;
 import static org.jline.utils.AttributedStyle.CYAN;
 import static org.jline.utils.AttributedStyle.DEFAULT;
 import static org.jline.utils.AttributedStyle.GREEN;
