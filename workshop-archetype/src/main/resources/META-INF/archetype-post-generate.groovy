@@ -1,3 +1,4 @@
+import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
@@ -10,17 +11,22 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute
 
-
 def generateExecutable = { String filepath, String contents ->
+    boolean isPosix = FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
     def path = Paths.get(filepath)
-    def permissions = new HashSet<PosixFilePermission>()
-    permissions.add(OWNER_READ)
-    permissions.add(OWNER_WRITE)
-    permissions.add(OWNER_EXECUTE)
-    permissions.add(GROUP_READ)
-    permissions.add(GROUP_WRITE)
-    permissions.add(GROUP_EXECUTE)
-    Files.createFile(path, asFileAttribute(permissions))
+    if (isPosix) {
+        def permissions = new HashSet<PosixFilePermission>()
+        permissions.add(OWNER_READ)
+        permissions.add(OWNER_WRITE)
+        permissions.add(OWNER_EXECUTE)
+        permissions.add(GROUP_READ)
+        permissions.add(GROUP_WRITE)
+        permissions.add(GROUP_EXECUTE)
+        Files.createFile(path, asFileAttribute(permissions))
+    }
+    else {
+        Files.createFile(path)
+    }
     path.toFile().write contents
 }
 
