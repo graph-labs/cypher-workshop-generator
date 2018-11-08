@@ -17,8 +17,7 @@ public class CommandScannerTest {
     }
 
     @Test
-    public void returns_custom_commands_found_in_classpath() throws Exception {
-
+    public void returns_custom_commands_found_in_classpath() {
         Command[] commands = new CommandScanner(this.getClass().getPackage().getName()).scan();
 
         assertThat(commands).containsExactly(new MyCustomCommand());
@@ -33,13 +32,13 @@ public class CommandScannerTest {
         }
 
         @Override
-        public boolean matches(String query) {
-            return query.contains(Command.PREFIX + name);
+        public String help() {
+            return "welp";
         }
 
         @Override
-        public String help() {
-            return "welp";
+        public String name() {
+            return name;
         }
 
         @Override

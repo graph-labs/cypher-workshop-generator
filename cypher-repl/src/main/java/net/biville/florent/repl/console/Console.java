@@ -13,7 +13,6 @@ import org.jline.reader.UserInterruptException;
 import org.jline.utils.AttributedStringBuilder;
 import org.jline.utils.AttributedStyle;
 
-import static net.biville.florent.repl.console.commands.CommandRegistry.HELP_COMMAND;
 import static org.jline.utils.AttributedStyle.GREEN;
 import static org.jline.utils.AttributedStyle.YELLOW;
 
@@ -72,7 +71,7 @@ public class Console {
         session.init(this.getClass().getResourceAsStream("/exercises/dump.cypher"));
         logger.system("... done!");
         logger.system("");
-        logger.information("Welcome! Available commands can be displayed with '%s'", HELP_COMMAND);
+        logger.information("Welcome! Available commands can be displayed with '%s'", commandRegistry.name());
         logger.information("");
         logger.information("Please make sure your Cypher statements end with a semicolon.");
         logger.information("Every exercise is independent, no changes are persisted against your database.");

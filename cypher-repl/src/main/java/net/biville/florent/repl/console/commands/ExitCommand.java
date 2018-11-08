@@ -2,9 +2,6 @@ package net.biville.florent.repl.console.commands;
 
 import net.biville.florent.repl.exercises.TraineeSession;
 import net.biville.florent.repl.logging.ConsoleLogger;
-import org.jline.utils.AttributedStyle;
-
-import static org.jline.utils.AttributedStyle.MAGENTA;
 
 public class ExitCommand implements Command {
 
@@ -15,13 +12,13 @@ public class ExitCommand implements Command {
     }
 
     @Override
-    public boolean matches(String query) {
-        return normalize(query).equals(":exit");
+    public String help() {
+        return String.format("%s - exits REPL", name());
     }
 
     @Override
-    public String help() {
-        return String.format("%s%s - exits REPL", PREFIX, "exit");
+    public String name() {
+        return Command.PREFIX + "exit";
     }
 
     @Override

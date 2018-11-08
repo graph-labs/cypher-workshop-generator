@@ -20,13 +20,13 @@ public class CypherRefcard implements Command {
     }
 
     @Override
-    public boolean matches(String query) {
-        return query.startsWith(COMMAND_NAME);
+    public String help() {
+        return String.format("%s - opens Cypher cheat sheet / reference card (refcard)", name());
     }
 
     @Override
-    public String help() {
-        return String.format("%s - opens Cypher cheat sheet / reference card (refcard)", COMMAND_NAME);
+    public String name() {
+        return COMMAND_NAME;
     }
 
     @Override

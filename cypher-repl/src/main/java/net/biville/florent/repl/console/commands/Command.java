@@ -5,15 +5,24 @@ import net.biville.florent.repl.exercises.TraineeSession;
 import java.util.Locale;
 import java.util.function.BiConsumer;
 
-public interface Command extends BiConsumer<TraineeSession, String> {
+public interface Command extends BiConsumer<TraineeSession, String>, Comparable<Command> {
 
     String PREFIX = ":";
 
-    boolean matches(String query);
-
     String help();
 
-    default String normalize(String input) {
+    String name();
+
+    default boolean matches(String query) {
+        return normalize(query).equals(name());
+    }
+
+    @Override
+    default int compareTo(Command other) {
+        return name().compareTo(other.name());
+    }
+
+    private String normalize(String input) {
         return input.trim().toLowerCase(Locale.ENGLISH);
     }
 }

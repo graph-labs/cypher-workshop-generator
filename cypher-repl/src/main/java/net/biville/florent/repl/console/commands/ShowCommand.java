@@ -1,11 +1,7 @@
 package net.biville.florent.repl.console.commands;
 
-import net.biville.florent.repl.exercises.Exercise;
 import net.biville.florent.repl.exercises.TraineeSession;
 import net.biville.florent.repl.logging.ConsoleLogger;
-import org.jline.utils.AttributedStyle;
-
-import static org.jline.utils.AttributedStyle.BLUE;
 
 public class ShowCommand implements Command {
 
@@ -16,13 +12,13 @@ public class ShowCommand implements Command {
     }
 
     @Override
-    public boolean matches(String query) {
-        return normalize(query).equals(PREFIX + "show");
+    public String help() {
+        return String.format("%s - shows current exercise instructions", name());
     }
 
     @Override
-    public String help() {
-        return String.format("%s%s - shows current exercise instructions", PREFIX, "show");
+    public String name() {
+        return PREFIX + "show";
     }
 
     @Override

@@ -7,7 +7,6 @@ import net.biville.florent.repl.graph.cypher.CypherError;
 import net.biville.florent.repl.graph.cypher.CypherQueryExecutor;
 import net.biville.florent.repl.graph.cypher.CypherStatementValidator;
 import net.biville.florent.repl.logging.ConsoleLogger;
-import org.jline.utils.AttributedStyle;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
@@ -43,6 +42,11 @@ public class CypherSessionFallbackCommand implements Command {
 
     @Override
     public String help() {
+        return "";
+    }
+
+    @Override
+    public String name() {
         return "";
     }
 
