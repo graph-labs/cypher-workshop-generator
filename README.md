@@ -6,6 +6,10 @@
 
 ## Generate a workshop
 
+Create a workshop like below in a just a few steps!
+
+![Generated Cypher workshop screenshot](./screenshot.png "Generated Cypher workshop screenshot")
+
 ### For manual testing
 
 ```
