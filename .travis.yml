@@ -15,5 +15,6 @@ before_script:
 script:
   - mvn -B -V test
 install:
-  - mvn -B -V install -DskipTests=true
-
+  - mvn -B -V install -DskipTests
+after_success:
+ - mvn -B -V -s ci/settings.xml deploy -DskipTests
