@@ -82,8 +82,13 @@ public class CypherSessionFallbackCommand implements Command {
         try {
             List<Map<String, Object>> actualResult = computeActualResult(statement, currentExercise);
             return session.validate(actualResult);
-        } catch (ClientException e) {
-            return new ExerciseValidation(false, format("An execution error occurred:%n%s", e.getMessage()));
+        } catch (RuntimeException e) {
+            String message = e.getMessage();
+            Throwable cause = e.getCause();
+            if (cause instanceof ClientException) {
+                message = cause.getMessage();
+            }
+            return new ExerciseValidation(false, format("An execution error occurred:%n%s", message));
         }
     }
 
