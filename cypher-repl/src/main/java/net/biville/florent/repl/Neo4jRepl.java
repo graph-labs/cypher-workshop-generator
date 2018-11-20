@@ -37,7 +37,7 @@ public class Neo4jRepl implements Supplier<Console> {
         CypherQueryExecutor queryExecutor = cypherQueryExecutor(configuration);
         validateConnection(queryExecutor);
 
-        CommandScanner commandScanner = new CommandScanner(configuration.getPackageToScan());
+        CommandScanner commandScanner = new CommandScanner(queryExecutor, configuration.getPackageToScan());
         LineReader lineReader = lineReader(new MultilineStatementParser());
         ConsoleLogger logger = consoleLogger(lineReader);
 
