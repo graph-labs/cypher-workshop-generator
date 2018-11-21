@@ -23,7 +23,8 @@ public class CommandScanner {
                         .and(Predicate.<Class<?>>isEqual(ShowCommand.class).negate())
                         .and(Predicate.<Class<?>>isEqual(ExitCommand.class).negate())
                         .and(Predicate.<Class<?>>isEqual(ResetProgressionCommand.class).negate())
-                        .and(Predicate.<Class<?>>isEqual(CypherRefcard.class).negate())
+                        .and(Predicate.<Class<?>>isEqual(CypherRefcardCommand.class).negate())
+                        .and(Predicate.<Class<?>>isEqual(SkipCommand.class).negate())
                 ;
 
         return reflections.getSubTypesOf(Command.class)

@@ -10,12 +10,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class CypherRefcard implements Command {
+public class CypherRefcardCommand implements Command {
 
     private static final String COMMAND_NAME = Command.PREFIX + "refcard";
     private final ConsoleLogger logger;
 
-    public CypherRefcard(ConsoleLogger logger) {
+    public CypherRefcardCommand(ConsoleLogger logger) {
         this.logger = logger;
     }
 
@@ -50,7 +50,7 @@ public class CypherRefcard implements Command {
     }
 
     private void copyToFile(String name, File file) {
-        try (InputStream input = CypherRefcard.class.getClassLoader().getResourceAsStream(name);
+        try (InputStream input = CypherRefcardCommand.class.getClassLoader().getResourceAsStream(name);
              OutputStream output = new FileOutputStream(file)) {
             output.write(input.readAllBytes());
         } catch (IOException e) {

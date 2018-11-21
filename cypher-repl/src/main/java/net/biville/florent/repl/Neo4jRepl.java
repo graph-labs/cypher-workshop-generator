@@ -40,12 +40,13 @@ public class Neo4jRepl implements Supplier<Console> {
         CommandScanner commandScanner = new CommandScanner(queryExecutor, configuration.getPackageToScan());
         LineReader lineReader = lineReader(new MultilineStatementParser());
         ConsoleLogger logger = consoleLogger(lineReader);
+        ExerciseRepository exerciseRepository = exerciseRepository(queryExecutor);
 
         return console(
                 logger,
-                new CommandRegistry(logger, commandScanner.scan()),
+                new CommandRegistry(logger, exerciseRepository, commandScanner.scan()),
                 queryExecutor,
-                traineeSession(exerciseRepository(queryExecutor), exerciseValidator(logger)),
+                traineeSession(exerciseRepository, exerciseValidator(logger)),
                 statementValidator(),
                 lineReader
         );

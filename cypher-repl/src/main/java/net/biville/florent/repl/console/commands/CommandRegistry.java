@@ -1,12 +1,11 @@
 package net.biville.florent.repl.console.commands;
 
+import net.biville.florent.repl.exercises.ExerciseRepository;
 import net.biville.florent.repl.exercises.TraineeSession;
 import net.biville.florent.repl.logging.ConsoleLogger;
 
 import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 
 import static java.text.MessageFormat.format;
 import static java.util.Arrays.asList;
@@ -17,13 +16,17 @@ public class CommandRegistry implements Command {
     private final ConsoleLogger logger;
     private final LinkedHashSet<Command> commands;
 
-    public CommandRegistry(ConsoleLogger logger, Command[] commands) {
+    public CommandRegistry(ConsoleLogger logger,
+                           ExerciseRepository exerciseRepository,
+                           Command[] commands) {
+
         this.logger = logger;
         this.commands = new LinkedHashSet<>(asList(commands));
         this.commands.add(new ShowCommand(logger));
         this.commands.add(new ExitCommand(logger));
         this.commands.add(new ResetProgressionCommand(logger));
-        this.commands.add(new CypherRefcard(logger));
+        this.commands.add(new CypherRefcardCommand(logger));
+        this.commands.add(new SkipCommand(logger, exerciseRepository));
         this.commands.add(this);
     }
 
@@ -45,8 +48,11 @@ public class CommandRegistry implements Command {
 
     @Override
     public void accept(TraineeSession session, String ignored) {
-        commands.stream().sorted().forEach(command -> {
-            logger.information(command.help());
-        });
+        commands.stream()
+                .filter(command -> !command.hidden())
+                .sorted()
+                .forEach(command -> {
+                    logger.information(command.help());
+                });
     }
 }

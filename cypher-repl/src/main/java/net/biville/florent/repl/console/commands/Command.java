@@ -13,6 +13,10 @@ public interface Command extends BiConsumer<TraineeSession, String>, Comparable<
 
     String name();
 
+    default boolean hidden() {
+        return false;
+    }
+
     default boolean matches(String query) {
         return normalize(query).equals(name());
     }
