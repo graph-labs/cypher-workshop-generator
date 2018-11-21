@@ -5,7 +5,7 @@ public class ExerciseValidation {
     private final boolean success;
     private final String report;
 
-    public ExerciseValidation(ResultDifference difference, String report) {
+    public ExerciseValidation(SolutionDifference difference, String report) {
         this(difference.isEmpty(), report);
     }
 
