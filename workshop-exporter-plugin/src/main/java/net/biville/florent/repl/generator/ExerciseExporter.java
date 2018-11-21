@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -51,8 +52,9 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
     }
 
     private Collection<String> cypherQueries(Driver driver, Collection<JsonExercise> jsonExercises) {
+        AtomicInteger rank = new AtomicInteger(1);
         Collection<String> result = jsonExercises.stream()
-                .map(exercise -> tryConvertQuery(driver, exercise))
+                .map(exercise -> tryConvertQuery(driver, exercise, rank.getAndIncrement()))
                 .collect(Collectors.toList());
 
         if (jsonExercises.size() > 1) {
@@ -61,9 +63,9 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
         return result;
     }
 
-    private String tryConvertQuery(Driver driver, JsonExercise exercise) {
+    private String tryConvertQuery(Driver driver, JsonExercise exercise, int rank) {
         try (Session session = driver.session(); Transaction tx = session.beginTransaction()) {
-            String query = convertToQuery(tx, exercise);
+            String query = convertToQuery(tx, exercise, rank);
             tx.failure();// always roll back, so nothing is persisted in remote database
             return query;
         } catch (ClientException e) {
@@ -71,36 +73,32 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
         }
     }
 
-    private String convertToQuery(Transaction transaction, JsonExercise exercise) {
+    private String convertToQuery(Transaction transaction, JsonExercise exercise, int rank) {
         if (exercise.requiresWrite()) {
             transaction.run(exercise.getWriteQuery());
             byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
-            return insertWriteExercise(exercise, expectedResult);
+            return insertWriteExercise(exercise, expectedResult, rank);
         }
 
         byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
-        return insertReadExercise(exercise.getInstructions(), expectedResult);
+        return insertReadExercise(exercise.getInstructions(), expectedResult, rank);
     }
 
-    private String insertWriteExercise(JsonExercise exercise, byte[] serializedResult) {
+    private String insertWriteExercise(JsonExercise exercise, byte[] serializedResult, int rank) {
         return format(
-                "MERGE (e:Exercise {instructions: '%s', validationQuery: '%s', result: '%s'})",
+                "MERGE (e:Exercise {rank: %d, instructions: '%s', validationQuery: '%s', result: '%s'})",
+                rank,
                 escape(exercise.getInstructions()),
                 escape(exercise.getSolutionQuery()),
                 encoder.encodeToString(serializedResult));
     }
 
-    private String insertReadExercise(String statement, byte[] serializedResult) {
-        return format("MERGE (e:Exercise {instructions: '%s', result: '%s'})", escape(statement), encoder.encodeToString(serializedResult));
+    private String insertReadExercise(String statement, byte[] serializedResult, int rank) {
+        return format("MERGE (e:Exercise {rank: %d, instructions: '%s', result: '%s'})", rank, escape(statement), encoder.encodeToString(serializedResult));
     }
 
     private String linkQuery() {
-        return "MATCH (e:Exercise) " +
-                "WITH e ORDER BY ID(e) " +
-                "WITH COLLECT(e) AS exercises " +
-                "FOREACH (i IN RANGE(0, length(exercises)-2) | " +
-                "FOREACH (first IN [exercises[i]] | " +
-                "FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second))))";
+        return "MATCH (e:Exercise) WITH e ORDER BY e.rank ASC WITH collect(e) AS exercises FOREACH (i IN range(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))";
     }
 
 

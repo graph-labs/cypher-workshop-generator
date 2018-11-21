@@ -31,11 +31,13 @@ public class ExerciseRepository {
             });
             executor.commit(tx -> {
                 tx.run("MERGE (s:TraineeSession) ON CREATE SET s.temp = true");
-                tx.run("MATCH (e:Exercise) WITH e ORDER BY ID(e) LIMIT 1 " +
-                        "MATCH (s:TraineeSession {temp:true}) " +
-                        "CREATE (s)-[:CURRENTLY_AT]->(e) " +
-                        "WITH s " +
-                        "REMOVE s.temp");
+                tx.run("MATCH path=(first_exercise:Exercise)-[NEXT*]->(:Exercise) \n" +
+                        "WITH first_exercise, path\n" +
+                        "ORDER BY length(path) DESC LIMIT 1 \n" +
+                        "MATCH (s:TraineeSession {temp:true}) \n" +
+                        "MERGE (s)-[:CURRENTLY_AT]->(first_exercise) \n" +
+                        "WITH s \n" +
+                        "REMOVE s.temp\n");
             });
         }
         catch (IOException e) {

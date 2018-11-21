@@ -2,21 +2,30 @@ package net.biville.florent.repl.exercises;
 
 import net.biville.florent.repl.graph.ReplConfiguration;
 import net.biville.florent.repl.graph.cypher.CypherQueryExecutor;
+import org.assertj.core.data.MapEntry;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.harness.junit.Neo4jRule;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,15 +33,52 @@ import static org.assertj.core.groups.Tuple.tuple;
 
 public class ExerciseRepositoryTest {
 
+    static {
+        LogManager.getLogManager().reset();
+    }
+
     @Rule
     public Neo4jRule graphDatabase = new Neo4jRule();
 
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     private ExerciseRepository repository;
+
+    private GraphDatabaseService graph;
 
     @Before
     public void prepare() {
         ReplConfiguration configuration = new ReplConfiguration(graphDatabase.boltURI());
         repository = new ExerciseRepository(new CypherQueryExecutor(configuration));
+        graph = graphDatabase.getGraphDatabaseService();
+    }
+
+    @Test
+    public void imports_exercises() throws IOException {
+        File file = folder.newFile();
+        Files.write(file.toPath(),
+                Arrays.asList(
+                        "MERGE (e:Exercise {order:1, instructions: 'Trouvez le nombre de films', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CfzIAQ=='})",
+                        "MERGE (e:Exercise {order:2, instructions: 'Trouvez le nombre de films d\\'action', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CbQm'})",
+                        "MATCH (e:Exercise) WITH e ORDER BY e.order ASC WITH COLLECT(e) AS exercises FOREACH (i IN RANGE(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))"),
+                StandardCharsets.UTF_8
+        );
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            repository.importExercises(inputStream);
+        }
+
+        try (Transaction ignored = graph.beginTx();
+            Result result = graph.execute("MATCH (:TraineeSession)-[:CURRENTLY_AT]->(first:Exercise)-[:NEXT]->(last:Exercise) RETURN first.instructions, last.instructions")) {
+            assertThat(result.hasNext()).overridingErrorMessage("Result should contain a first row").isTrue();
+            Map<String, Object> row = result.next();
+            assertThat(row).containsOnly(
+                    MapEntry.entry("first.instructions", "Trouvez le nombre de films"),
+                    MapEntry.entry("last.instructions", "Trouvez le nombre de films d\'action")
+            );
+            assertThat(result.hasNext()).overridingErrorMessage("Result should not contain extra rows").isFalse();
+        }
     }
 
     @Test

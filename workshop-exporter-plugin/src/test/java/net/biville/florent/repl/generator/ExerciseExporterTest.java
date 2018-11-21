@@ -60,7 +60,7 @@ public class ExerciseExporterTest {
 
         String expectedBase64 = "AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CQA=";
         assertThat(dump).hasContent(
-                String.format("MERGE (e:Exercise {instructions: 'Crazy query!', result: '%s'})", expectedBase64)
+                String.format("MERGE (e:Exercise {rank: 1, instructions: 'Crazy query!', result: '%s'})", expectedBase64)
         );
         assertThatDeserializedResult(expectedBase64, result -> {
             assertThat(result).hasSize(1);
@@ -76,7 +76,7 @@ public class ExerciseExporterTest {
                 "MATCH (n:Person {name:'foobar'}) RETURN n.name",
                 "CREATE (:Person {name:'foobar'})")));
 
-        assertThat(dump).hasContent("MERGE (e:Exercise {instructions: 'Create a node Person whose name is foobar', validationQuery: 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAW4ubmFt5QMBZm9vYmHy'})");
+        assertThat(dump).hasContent("MERGE (e:Exercise {rank: 1, instructions: 'Create a node Person whose name is foobar', validationQuery: 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAW4ubmFt5QMBZm9vYmHy'})");
         try (Driver driver = GraphDatabase.driver(graphDb.boltURI(), config()); Session session = driver.session()) {
             StatementResult result = session.run("MATCH (n:Person {name:'foobar'}) RETURN n.name");
             assertThat(result.list()).isEmpty(); //rollbacks against remote DB
@@ -90,9 +90,9 @@ public class ExerciseExporterTest {
                 exercise("bar", "MATCH (n:Bar) RETURN COUNT(n) AS bar")));
 
         assertThat(dump).hasContent(
-                "MERGE (e:Exercise {instructions: 'foo', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA'})\n" +
-                "MERGE (e:Exercise {instructions: 'bar', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA'})\n" +
-                "MATCH (e:Exercise) WITH e ORDER BY ID(e) WITH COLLECT(e) AS exercises FOREACH (i IN RANGE(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second))))");
+                "MERGE (e:Exercise {rank: 1, instructions: 'foo', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA'})\n" +
+                "MERGE (e:Exercise {rank: 2, instructions: 'bar', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA'})\n" +
+                "MATCH (e:Exercise) WITH e ORDER BY e.rank ASC WITH collect(e) AS exercises FOREACH (i IN range(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))");
     }
 
     @Test
