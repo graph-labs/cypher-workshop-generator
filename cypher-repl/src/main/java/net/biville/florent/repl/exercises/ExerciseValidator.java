@@ -48,10 +48,4 @@ public class ExerciseValidator {
         }
     }
 
-    private boolean isSingleColumn(List<Map<String, Object>> expectedResult) {
-        return expectedResult.stream()
-                .filter(row -> row.size() != 1)
-                .findAny()
-                .isEmpty();
-    }
 }

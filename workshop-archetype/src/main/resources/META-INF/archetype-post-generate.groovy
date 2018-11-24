@@ -45,7 +45,7 @@ mvn -q net.biville.florent.cypher:workshop-exporter-plugin:generate-cypher-file 
     -Dpassword="\$password" \
     -Dexercise-input=src/main/resources/exercises/exercises.json \
     -Dcypher-output=src/main/resources/exercises/dump.cypher 2> /dev/null
-""".stripLeading())
+""".stripIndent())
 
 generateExecutable(
         "${request.getOutputDirectory()}/${request.getArtifactId()}/run.sh",
@@ -56,5 +56,5 @@ set -euo pipefail
 cd target
 unzip cypher-workshop.zip
 ./cypher-workshop/bin/cypher-workshop "\$@"
-""".stripLeading())
+""".stripIndent())
 

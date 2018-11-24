@@ -26,7 +26,7 @@ public interface Command extends BiConsumer<TraineeSession, String>, Comparable<
         return name().compareTo(other.name());
     }
 
-    private String normalize(String input) {
+    default String normalize(String input) {
         return input.trim().toLowerCase(Locale.ENGLISH);
     }
 }

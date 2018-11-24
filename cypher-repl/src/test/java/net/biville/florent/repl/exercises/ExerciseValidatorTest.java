@@ -7,13 +7,11 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Arrays.asList;
-import static java.util.Map.of;
+import static net.biville.florent.repl.Lists.mutableList;
+import static net.biville.florent.repl.Maps.mutableMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,17 +26,17 @@ public class ExerciseValidatorTest {
     public void answer_is_valid_regardless_of_row_order() {
         Exercise exercise = mock(Exercise.class);
         when(exercise.getSerializedResult()).thenReturn(serialize(
-                new ArrayList<>(asList(
-                        newHashMap(of("prop1", 21L, "prop2", "value3")),
-                        newHashMap(of("prop1", 84L, "prop2", "value2")),
-                        newHashMap(of("prop1", 42L, "prop2", "value1"))
-                ))
+                mutableList(
+                        mutableMap("prop1", 21L, "prop2", "value3"),
+                        mutableMap("prop1", 84L, "prop2", "value2"),
+                        mutableMap("prop1", 42L, "prop2", "value1")
+                )
         ));
 
-        ExerciseValidation validation = validator.validate(asList(
-                of("prop1", 42L, "prop2", "value1"),
-                of("prop1", 84L, "prop2", "value2"),
-                of("prop1", 21L, "prop2", "value3")
+        ExerciseValidation validation = validator.validate(mutableList(
+                mutableMap("prop1", 42L, "prop2", "value1"),
+                mutableMap("prop1", 84L, "prop2", "value2"),
+                mutableMap("prop1", 21L, "prop2", "value3")
         ), exercise);
 
         assertThat(validation.isSuccessful())
@@ -50,13 +48,13 @@ public class ExerciseValidatorTest {
     public void answer_is_valid_regardless_of_property_order() {
         Exercise exercise = mock(Exercise.class);
         when(exercise.getSerializedResult()).thenReturn(serialize(
-                new ArrayList<>(List.of(
-                        newHashMap(of("prop1", 42L, "prop2", "value"))
+                mutableList(
+                        mutableMap("prop1", 42L, "prop2", "value")
                 ))
-        ));
+        );
 
-        ExerciseValidation validation = validator.validate(List.of(
-                of("prop2", "value", "prop1", 42L)
+        ExerciseValidation validation = validator.validate(mutableList(
+                mutableMap("prop2", "value", "prop1", 42L)
         ), exercise);
 
         assertThat(validation.isSuccessful())
@@ -75,4 +73,5 @@ public class ExerciseValidatorTest {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
+
 }

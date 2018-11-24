@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Comparator.comparing;
-import static java.util.function.Predicate.not;
-
 class Solutions {
 
     public static SolutionDifference difference(List<Map<String, Object>> actualResult,
@@ -33,8 +30,7 @@ class Solutions {
 
     private static boolean singleColumnResult(List<Map<String, Object>> rows) {
         return rows.stream()
-                .filter(map -> map.size() > 1)
-                .findAny().isEmpty();
+                .noneMatch(map -> map.size() > 1);
     }
 
     private static List<Collection<Object>> extractValues(List<Map<String, Object>> rows) {
@@ -48,7 +44,7 @@ class Solutions {
     private static <T> List<T> computeDifference(List<T> rows1,
                                                  List<T> rows2) {
         return rows2.stream()
-                .filter(not(rows1::contains))
+                .filter(e -> !rows1.contains(e))
                 .collect(Collectors.toList());
     }
 }

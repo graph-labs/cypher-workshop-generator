@@ -52,7 +52,15 @@ public class CypherRefcardCommand implements Command {
     private void copyToFile(String name, File file) {
         try (InputStream input = CypherRefcardCommand.class.getClassLoader().getResourceAsStream(name);
              OutputStream output = new FileOutputStream(file)) {
-            output.write(input.readAllBytes());
+            if (input == null) {
+                logger.error("Cannot read %s", file.getAbsolutePath());
+                return;
+            }
+            int readBytes;
+            byte[] data = new byte[Math.max(input.available(), 1024)];
+            while ((readBytes = input.read(data, 0, data.length)) != -1) {
+                output.write(data, 0, readBytes);
+            }
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

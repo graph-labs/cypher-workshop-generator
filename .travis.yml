@@ -6,15 +6,17 @@ language: java
 services:
   - docker
 jdk:
-  - oraclejdk11
-  - openjdk11 
+  - oraclejdk8
+  - openjdk8
 os:
   - linux
-before_script:
-  - mvn -B -V clean
-script:
-  - mvn -B -V test
+before_install:
+  - sed -i "s|\[JDK8_HOME\]|$JAVA_HOME|g" ci/toolchains.xml
 install:
-  - mvn -B -V install -DskipTests
+  - mvn -t ci/toolchains.xml -B -V install -DskipTests
+before_script:
+  - mvn -t ci/toolchains.xml -B -V clean
+script:
+  - mvn -t ci/toolchains.xml -B -V test
 after_success:
- - mvn -B -V -s ci/settings.xml deploy -DskipTests
+  - mvn -t ci/toolchains.xml -B -V -s ci/settings.xml deploy -DskipTests
