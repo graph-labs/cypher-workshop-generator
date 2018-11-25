@@ -86,19 +86,23 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
 
     private String insertWriteExercise(JsonExercise exercise, byte[] serializedResult, int rank) {
         return format(
-                "MERGE (e:Exercise {rank: %d, instructions: '%s', validationQuery: '%s', result: '%s'})",
-                rank,
+                "MERGE (e:Exercise {instructions: '%s'}) " +
+                        "ON CREATE SET e.rank = %d, e.validationQuery = '%s', e.result = '%s' " +
+                        "ON MATCH SET e.rank = %2$d, e.validationQuery = '%3$s', e.result = '%4$s'",
                 escape(exercise.getInstructions()),
+                rank,
                 escape(exercise.getSolutionQuery()),
                 encoder.encodeToString(serializedResult));
     }
 
     private String insertReadExercise(String statement, byte[] serializedResult, int rank) {
-        return format("MERGE (e:Exercise {rank: %d, instructions: '%s', result: '%s'})", rank, escape(statement), encoder.encodeToString(serializedResult));
+        return format("MERGE (e:Exercise {instructions: '%s'}) " +
+                "ON CREATE SET e.rank = %d, e.result = '%s' " +
+                "ON MATCH SET e.result = '%3$s'", escape(statement), rank, encoder.encodeToString(serializedResult));
     }
 
     private String linkQuery() {
-        return "MATCH (e:Exercise) WITH e ORDER BY e.rank ASC WITH collect(e) AS exercises FOREACH (i IN range(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))";
+        return "MATCH (e:Exercise) WHERE EXISTS(e.rank) WITH e ORDER BY e.rank ASC WITH collect(e) AS exercises FOREACH (i IN range(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))";
     }
 
 
