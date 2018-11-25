@@ -26,6 +26,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.LogManager;
@@ -35,6 +36,7 @@ import static java.nio.file.Files.lines;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.util.Maps.newHashMap;
 
 public class ExerciseExporterTest {
 
@@ -64,7 +66,7 @@ public class ExerciseExporterTest {
 
         String expectedBase64 = "AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CQA=";
         assertThat(dump).hasContent(
-                String.format("MERGE (e:Exercise {instructions: 'Crazy query!'}) ON CREATE SET e.rank = 1, e.result = '%s' ON MATCH SET e.result = '%1$s'", expectedBase64)
+                String.format("MERGE (e:Exercise {id: {id}}) ON CREATE SET e.instructions = 'Crazy query!', e.rank = 1, e.result = '%s' ON MATCH SET e.instructions = 'Crazy query!', e.rank = 1, e.result = '%1$s'", expectedBase64)
         );
         assertThatDeserializedResult(expectedBase64, result -> {
             assertThat(result).hasSize(1);
@@ -82,7 +84,9 @@ public class ExerciseExporterTest {
 
         String expectedBase64 = "AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAW4ubmFt5QMBZm9vYmHy";
         assertThat(dump).hasContent(
-                String.format("MERGE (e:Exercise {instructions: 'Create a node Person whose name is foobar'}) ON CREATE SET e.rank = 1, e.validationQuery = 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', e.result = '%s' ON MATCH SET e.rank = 1, e.validationQuery = 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', e.result = '%1$s'", expectedBase64)
+                String.format("MERGE (e:Exercise {id: {id}}) " +
+                        "ON CREATE SET e.instructions = 'Create a node Person whose name is foobar', e.rank = 1, e.validationQuery = 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', e.result = '%s' " +
+                        "ON MATCH SET e.instructions = 'Create a node Person whose name is foobar', e.rank = 1, e.validationQuery = 'MATCH (n:Person {name:\\'foobar\\'}) RETURN n.name', e.result = '%1$s'", expectedBase64)
         );
         try (Driver driver = GraphDatabase.driver(graphDb.boltURI(), config()); Session session = driver.session()) {
             StatementResult result = session.run("MATCH (n:Person {name:'foobar'}) RETURN n.name");
@@ -97,8 +101,8 @@ public class ExerciseExporterTest {
                 exercise("bar", "MATCH (n:Bar) RETURN COUNT(n) AS bar")));
 
         assertThat(dump).hasContent(
-                "MERGE (e:Exercise {instructions: 'foo'}) ON CREATE SET e.rank = 1, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA' ON MATCH SET e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA'\n" +
-                "MERGE (e:Exercise {instructions: 'bar'}) ON CREATE SET e.rank = 2, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA' ON MATCH SET e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA'\n" +
+                "MERGE (e:Exercise {id: {id}}) ON CREATE SET e.instructions = 'foo', e.rank = 1, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA' ON MATCH SET e.instructions = 'foo', e.rank = 1, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWZv7wkA'\n" +
+                "MERGE (e:Exercise {id: {id}}) ON CREATE SET e.instructions = 'bar', e.rank = 2, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA' ON MATCH SET e.instructions = 'bar', e.rank = 2, e.result = 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWJh8gkA'\n" +
                 "MATCH (e:Exercise) WHERE EXISTS(e.rank) WITH e ORDER BY e.rank ASC WITH collect(e) AS exercises FOREACH (i IN range(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))");
     }
 
@@ -125,9 +129,10 @@ public class ExerciseExporterTest {
     }
 
     private static void executeExportedDump(Path dump, URI uri) throws IOException {
+        AtomicInteger atomicInteger = new AtomicInteger(1);
         lines(dump, UTF_8).forEachOrdered(line -> {
             try (Driver driver = GraphDatabase.driver(uri, config()); Session session = driver.session()) {
-                session.run(line);
+                session.run(line, newHashMap("id", atomicInteger.getAndIncrement()));
             }
         });
     }

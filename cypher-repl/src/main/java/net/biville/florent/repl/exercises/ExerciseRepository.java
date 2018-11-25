@@ -1,15 +1,19 @@
 package net.biville.florent.repl.exercises;
 
 import net.biville.florent.repl.graph.cypher.CypherQueryExecutor;
+import org.neo4j.driver.internal.value.IntegerValue;
 import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.Value;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static java.lang.Integer.parseInt;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -27,20 +31,23 @@ public class ExerciseRepository {
     public void importExercises(InputStream dataset) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataset, UTF_8))) {
             executor.commit(tx -> {
-                reader.lines().forEachOrdered(line -> tx.run(line.replaceAll("\\\\n", "\n")));
+                tx.run("CREATE CONSTRAINT ON (exercise:Exercise) ASSERT exercise.id IS UNIQUE");
+                tx.run("CREATE CONSTRAINT ON (exercise:Exercise) ASSERT exercise.rank IS UNIQUE");
+            });
+            Random random = new Random(upsertSeed());
+            executor.commit(tx -> {
+                reader.lines().forEachOrdered(line ->
+                        tx.run(line.replaceAll("\\\\n", "\n"), map("id", random.nextLong()))
+                );
             });
             executor.commit(tx -> {
-                tx.run("MERGE (s:TraineeSession) ON CREATE SET s.temp = true");
                 tx.run("MATCH path=(first_exercise:Exercise)-[NEXT*]->(:Exercise) \n" +
                         "WITH first_exercise, path\n" +
                         "ORDER BY length(path) DESC LIMIT 1 \n" +
-                        "MATCH (s:TraineeSession {temp:true}) \n" +
-                        "MERGE (s)-[:CURRENTLY_AT]->(first_exercise) \n" +
-                        "WITH s \n" +
-                        "REMOVE s.temp\n");
+                        "MATCH (s:TraineeSession) WHERE NOT((s)-[:CURRENTLY_AT]->(:Exercise)) \n" +
+                        "MERGE (s)-[:CURRENTLY_AT]->(first_exercise)");
             });
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
@@ -48,12 +55,12 @@ public class ExerciseRepository {
     public Exercise findCurrentExercise() {
         List<Map<String, Object>> rows = executor.rollback(tx -> {
             return tx.run("MATCH (:TraineeSession)-[:CURRENTLY_AT]->(e:Exercise)<-[p:NEXT*0..]-(:Exercise), (all:Exercise) " +
-                    "WITH e,p, COUNT(all) AS total " +
-                    "ORDER BY LENGTH(p) DESC LIMIT 1 " +
+                    "WITH e,p, count(all) AS total " +
+                    "ORDER BY length(p) DESC LIMIT 1 " +
                     "RETURN e.instructions AS instructions," +
                     "       e.result AS result," +
                     "       e.validationQuery AS validationQuery," +
-                    "       1+LENGTH(p) AS position," +
+                    "       1+length(p) AS position," +
                     "       total"
             ).list(Record::asMap);
         });
@@ -94,4 +101,22 @@ public class ExerciseRepository {
         });
     }
 
+    private long upsertSeed() {
+        return executor.commit(tx -> {
+            Record record = tx.run("MERGE (session:TraineeSession) " +
+                    "ON CREATE SET session.seed = {seed} " +
+                    "RETURN session.seed AS seed", randomSeedValue()).single();
+            return record.get("seed").asLong();
+        });
+    }
+
+    private Map<String, Object> randomSeedValue() {
+        return map("seed", new Random().nextLong());
+    }
+
+    private Map<String, Object> map(String key, Object value) {
+        Map<String, Object> result = new HashMap<>(2);
+        result.put(key, value);
+        return result;
+    }
 }

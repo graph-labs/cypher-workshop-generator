@@ -74,31 +74,35 @@ public class ExerciseExporter implements BiConsumer<File, Collection<JsonExercis
     }
 
     private String convertToQuery(Transaction transaction, JsonExercise exercise, int rank) {
-        if (exercise.requiresWrite()) {
-            transaction.run(exercise.getWriteQuery());
-            byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
-            return insertWriteExercise(exercise, expectedResult, rank);
-        }
+        String instructions = exercise.getInstructions();
 
+        if (exercise.requiresWrite()) {
+            transaction.run(exercise.getWriteQuery()); // needs to run before the solution query
+            byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
+            return insertWriteExercise(instructions, rank, exercise.getSolutionQuery(), expectedResult);
+        }
         byte[] expectedResult = serialize(transaction.run(exercise.getSolutionQuery()));
-        return insertReadExercise(exercise.getInstructions(), expectedResult, rank);
+        return insertReadExercise(instructions, expectedResult, rank);
     }
 
-    private String insertWriteExercise(JsonExercise exercise, byte[] serializedResult, int rank) {
+    private String insertWriteExercise(String instructions, int rank, String solutionQuery, byte[] serializedResult) {
         return format(
-                "MERGE (e:Exercise {instructions: '%s'}) " +
-                        "ON CREATE SET e.rank = %d, e.validationQuery = '%s', e.result = '%s' " +
-                        "ON MATCH SET e.rank = %2$d, e.validationQuery = '%3$s', e.result = '%4$s'",
-                escape(exercise.getInstructions()),
+                "MERGE (e:Exercise {id: {id}}) " +
+                        "ON CREATE SET e.instructions = '%s', e.rank = %d, e.validationQuery = '%s', e.result = '%s' " +
+                        "ON MATCH SET e.instructions = '%1$s', e.rank = %2$d, e.validationQuery = '%3$s', e.result = '%4$s'",
+                escape(instructions),
                 rank,
-                escape(exercise.getSolutionQuery()),
+                escape(solutionQuery),
                 encoder.encodeToString(serializedResult));
     }
 
     private String insertReadExercise(String statement, byte[] serializedResult, int rank) {
-        return format("MERGE (e:Exercise {instructions: '%s'}) " +
-                "ON CREATE SET e.rank = %d, e.result = '%s' " +
-                "ON MATCH SET e.result = '%3$s'", escape(statement), rank, encoder.encodeToString(serializedResult));
+        return format("MERGE (e:Exercise {id: {id}}) " +
+                        "ON CREATE SET e.instructions = '%s', e.rank = %d, e.result = '%s' " +
+                        "ON MATCH SET e.instructions = '%1$s', e.rank = %2$d, e.result = '%3$s'",
+                escape(statement),
+                rank,
+                encoder.encodeToString(serializedResult));
     }
 
     private String linkQuery() {

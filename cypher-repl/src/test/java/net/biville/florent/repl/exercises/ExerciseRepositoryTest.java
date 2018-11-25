@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -29,6 +30,7 @@ import java.util.logging.LogManager;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.groups.Tuple.tuple;
 
 public class ExerciseRepositoryTest {
@@ -59,9 +61,15 @@ public class ExerciseRepositoryTest {
         File file = folder.newFile();
         Files.write(file.toPath(),
                 Arrays.asList(
-                        "MERGE (e:Exercise {order:1, instructions: 'Trouvez le nombre de films', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CfzIAQ=='})",
-                        "MERGE (e:Exercise {order:2, instructions: 'Trouvez le nombre de films d\\'action', result: 'AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CbQm'})",
-                        "MATCH (e:Exercise) WITH e ORDER BY e.order ASC WITH COLLECT(e) AS exercises FOREACH (i IN RANGE(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))"),
+                        String.format("MERGE (e:Exercise {id: {id}}) " +
+                                        "ON CREATE SET e.instructions = 'Trouvez le nombre de films', e.rank = 1, e.result = '%s' " +
+                                        "ON MATCH SET e.instructions = 'Trouvez le nombre de films', e.rank = 1, e.result = '%1$s'",
+                                "AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CfzIAQ"),
+                        String.format("MERGE (e:Exercise {id: {id}}) " +
+                                        "ON CREATE SET e.instructions = 'Trouvez le nombre de films d\\'action', e.rank = 2, e.result = '%s' " +
+                                        "ON MATCH SET e.instructions = 'Trouvez le nombre de films d\\'action', e.rank = 2, e.result = '%1$s'",
+                                "AQEBAGphdmEudXRpbC5IYXNoTWHwAQEDAWNvdW70CbQm"),
+                        "MATCH (e:Exercise) WITH e ORDER BY e.rank ASC WITH COLLECT(e) AS exercises FOREACH (i IN RANGE(0, length(exercises)-2) | FOREACH (first IN [exercises[i]] | FOREACH (second IN [exercises[i+1]] | MERGE (first)-[:NEXT]->(second) REMOVE first.rank REMOVE second.rank)))"),
                 StandardCharsets.UTF_8
         );
 
@@ -70,7 +78,7 @@ public class ExerciseRepositoryTest {
         }
 
         try (Transaction ignored = graph.beginTx();
-            Result result = graph.execute("MATCH (:TraineeSession)-[:CURRENTLY_AT]->(first:Exercise)-[:NEXT]->(last:Exercise) RETURN first.instructions, last.instructions")) {
+             Result result = graph.execute("MATCH (:TraineeSession)-[:CURRENTLY_AT]->(first:Exercise)-[:NEXT]->(last:Exercise) RETURN first.instructions, last.instructions")) {
             assertThat(result.hasNext()).overridingErrorMessage("Result should contain a first row").isTrue();
             Map<String, Object> row = result.next();
             assertThat(row).containsOnly(
@@ -82,10 +90,46 @@ public class ExerciseRepositoryTest {
     }
 
     @Test
+    public void rejects_import_of_exercises_with_duplicate_rank() throws IOException {
+        File file = folder.newFile();
+        Files.write(file.toPath(),
+                Arrays.asList(
+                        "CREATE (e:Exercise {rank: 1})",
+                        "CREATE (e:Exercise {rank: 1})"),
+                StandardCharsets.UTF_8
+        );
+
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            assertThatThrownBy(() -> repository.importExercises(inputStream))
+                    .hasMessageContaining("already exists with label `Exercise` and property `rank`")
+                    .isInstanceOf(ClientException.class);
+        }
+    }
+
+    @Test
+    public void rejects_import_of_exercises_with_duplicate_id() throws IOException {
+        File file = folder.newFile();
+        Files.write(file.toPath(),
+                Arrays.asList(
+                        "CREATE (e:Exercise {id: 1})",
+                        "CREATE (e:Exercise {id: 1})"),
+                StandardCharsets.UTF_8
+        );
+
+
+        try (InputStream inputStream = new FileInputStream(file)) {
+            assertThatThrownBy(() -> repository.importExercises(inputStream))
+                    .hasMessageContaining("already exists with label `Exercise` and property `id`")
+                    .isInstanceOf(ClientException.class);
+        }
+    }
+
+    @Test
     public void returns_current_exercise() {
         String solution = "whatever works";
         write(format("CREATE (:TraineeSession)-[:CURRENTLY_AT]->(:Exercise {instructions:'Do something', result:'%s'})",
-                        encode(solution)));
+                encode(solution)));
 
         Exercise exercise = repository.findCurrentExercise();
 
@@ -99,8 +143,8 @@ public class ExerciseRepositoryTest {
     public void moves_to_next() {
         String nextSolution = "whatever works again";
         write(format("CREATE (:TraineeSession)-[:CURRENTLY_AT]->(:Exercise {instructions:'Do something', result:'%s'})-[:NEXT]->(:Exercise {instructions:'Next one!', result:'%s'})",
-                        encode("whatever works"),
-                        encode(nextSolution)));
+                encode("whatever works"),
+                encode(nextSolution)));
 
         repository.moveToNextExercise();
 
@@ -162,7 +206,7 @@ public class ExerciseRepositoryTest {
         HashMap<String, Object> map = new HashMap<>();
         for (Tuple tuple : tuples) {
             Object[] tupleArray = tuple.toArray();
-            map.put((String)tupleArray[0], tupleArray[1]);
+            map.put((String) tupleArray[0], tupleArray[1]);
         }
         return map;
     }

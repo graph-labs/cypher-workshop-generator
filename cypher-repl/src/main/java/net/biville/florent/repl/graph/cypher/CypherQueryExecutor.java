@@ -19,12 +19,12 @@ public class CypherQueryExecutor {
         this.configuration = configuration;
     }
 
-    public List<Map<String, Object>> commit(Function<Transaction, List<Map<String, Object>>> callback) {
+    public <T> T commit(Function<Transaction, T> callback) {
         try (Driver driver = GraphDatabase.driver(configuration.getBoltUri(), configuration.getAuthToken());
              Session session = driver.session();
              Transaction tx = session.beginTransaction()) {
 
-            List<Map<String, Object>> result = callback.apply(tx);
+            T result = callback.apply(tx);
             tx.success();
             return result;
         }
