@@ -6,7 +6,6 @@ language: java
 services:
   - docker
 jdk:
-  - oraclejdk8
   - openjdk8
 os:
   - linux
