@@ -1,0 +1,20 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: org.neo4j.driver:neo4j-java-driver
+    versions:
+    - 4.2.0
+    - 4.2.1
+    - 4.2.2
+    - 4.2.3
+    - 4.2.4
+  - dependency-name: com.esotericsoftware:kryo
+    versions:
+    - 5.0.3
+    - 5.0.4
