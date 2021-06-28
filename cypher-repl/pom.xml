@@ -14,7 +14,7 @@
     <name>Cypher Workshop REPL</name>
 
     <properties>
-        <antlr.version>4.7.1</antlr.version>
+        <antlr.version>4.8-1</antlr.version>
         <antlr4.generated.dir>${project.build.directory}/antlr</antlr4.generated.dir>
     </properties>
 
